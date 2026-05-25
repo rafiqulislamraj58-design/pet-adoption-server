@@ -1,20 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const Pet = require('../models/Pet');
-const verifyToken = require('../middleware/verifyToken');
 
 router.get('/', async (req, res) => {
   try {
     const { search, species } = req.query;
     let query = {};
-
-    if (search) {
-      query.name = { $regex: search, $options: 'i' };
-    }
-    if (species) {
-      query.species = { $in: [species] };
-    }
-
+    if (search) query.name = { $regex: search, $options: 'i' };
+    if (species) query.species = { $in: [species] };
     const pets = await Pet.find(query);
     res.json(pets);
   } catch (error) {
@@ -31,8 +24,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-
-router.post('/', verifyToken, async (req, res) => {
+router.post('/', async (req, res) => {
   try {
     const pet = new Pet(req.body);
     await pet.save();
@@ -42,8 +34,7 @@ router.post('/', verifyToken, async (req, res) => {
   }
 });
 
-
-router.put('/:id', verifyToken, async (req, res) => {
+router.put('/:id', async (req, res) => {
   try {
     const pet = await Pet.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.json(pet);
@@ -52,8 +43,7 @@ router.put('/:id', verifyToken, async (req, res) => {
   }
 });
 
-
-router.delete('/:id', verifyToken, async (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
     await Pet.findByIdAndDelete(req.params.id);
     res.json({ message: 'Pet deleted!' });
